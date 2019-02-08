@@ -1,7 +1,7 @@
 {
     "name": "eyedoor-server",
     "version": "1.0.0",
-    "main": "Server.js",
+    "main": "server.js",
     "author": "Joseph Frank",
     "dependencies": {
         "express": "^4.16.4"
