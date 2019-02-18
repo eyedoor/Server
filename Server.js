@@ -1,7 +1,16 @@
 var credentials = require("./credentials/credentials");
 var mysql = require("mysql");
 var express = require("express");
+
+// Route middleware
+var images = require("./routes/images");
+var users = require("./routes/users");
+var events = require("./routes/events");
+var login = require("./routes/login");
+var people = require("./routes/people");
+
 var app = express();
+var router = express.Router();
 
 app.listen(3000, () => {
  console.log("Server running on port 3000");
@@ -19,43 +28,8 @@ app.use(function(req, res, next){
 	next();
 });
 
-
-//GET
-
-app.get("/api/images", (req, res, next) => {
-    res.json("get images");
-});
-
-app.get("/api/people", (req, res, next) => {
-    res.json("get people");
-});
-
-//POST
-
-app.post("/api/login", (req, res, next) => {
-    res.json("post login");
-});
-
-app.post("/api/images", (req, res, next) => {
-    res.json("post images");
-});
-
-app.post("/api/users", (req, res, next) => {
-    res.json("post users");
-});
-
-app.post("/api/people", (req, res, next) => {
-    res.json("post people");
-});
-
-//CREATE
-
-app.put("/api/users", (req, res, next) => {
-    res.json("put users");
-});
-
-//DELETE
-
-app.delete("/api/people", (req, res, next) => {
-    res.json("delete people");
-});
+app.use('/api/login', login);
+app.use('/api/users', users);
+app.use('/api/events', events);
+app.use('/api/people', people);
+app.use('/api/images', images);

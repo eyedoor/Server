@@ -1,8 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
-router.post("/", (req, res, next) => {
-    res.json("post login");
+router.get("/api/events", (req, res, next) => {
+    res.json("get events");
 });
 
 module.exports = router;
