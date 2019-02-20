@@ -4,6 +4,7 @@
     "main": "server.js",
     "author": "Joseph Frank",
     "dependencies": {
+        "bcrypt": "^3.0.4",
         "body-parser": "^1.18.3",
         "express": "^4.16.4",
         "mysql": "^2.16.0"
