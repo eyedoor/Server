@@ -4,7 +4,7 @@ var express = require('express'),
 var router = express.Router();
 
 // Create new user
-router.post("/", (req, res, next) => {
+router.post("/", (req, res, next) => {   
     console.log(req.query);
     res.json("post users");
 });
