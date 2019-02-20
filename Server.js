@@ -18,6 +18,6 @@ app.use('/api/events', events);
 app.use('/api/people', people);
 app.use('/api/images', images);
 
-app.listen(3000, '10.138.52.191', () => {
+app.listen(3000, () => {
 	console.log("Server running on port 3000");
 });
