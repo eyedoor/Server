@@ -11,28 +11,32 @@ router.post("/", createUser);
 router.put("/", updateUser);
 
 function createUser(req, res, next) {
-    // TODO: perform parsing/validation on query
+    // TODO: perform parsing/validation/sanatization on query
     var username = req.params.username, 
         password = req.params.password, 
         firstname = req.params.firstname, 
         lastname = req.params.lastname;
     
     // TODO: check if username alreadyexists
-    pool.query('SELECT * from test', function (error, results, fields) {
+    pool.query('SELECT * from test where username='+username, function (error, results, fields) {
         if (error) throw error;
-        console.log('The solution is: ', results);
+        if(!(results === undefined || results.length == 0)){
+            res.json("Username unavailable");
+            return;
+        }
+
+        //encrypt password
+        bcrypt.hash(password, saltRounds, function(err, hash) {
+            //store hash in database
+            var query = "INSERT INTO test (username, password, firstname, lastname) VALUES (" + username +"," +
+                        hash + "," + firstname + "," + lastname +");";
+
+            pool.query(query, function (error, results, fields) {
+                if (error) throw error;
+                res.json("User " +username+ "created");
+            });
+        });
     });
-
-    //encrypt password
-    // bcrypt.hash(password, saltRounds, function(err, hash) {
-    //     //store password in database
-    //     // pool.query('SELECT 1 + 1 AS solution', function (error, results, fields) {
-    //     //     if (error) throw error;
-    //     //     console.log('The solution is: ', results[0].solution);
-    //     // });
-    // });
-
-    res.json("post users");
 }
 
 function updateUser(req, res, next) {
