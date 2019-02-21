@@ -8,8 +8,7 @@ var images = require("./routes/images"),
 	login = require("./routes/login"),
 	people = require("./routes/people");
 
-var app = express(),
-	router = express.Router();
+var app = express();
 
 // Assign routes
 app.use('/api/login', login);
