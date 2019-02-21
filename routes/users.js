@@ -1,6 +1,6 @@
 var express = require('express'),
     database = require("../database"),
-    userSchema = require("../schema/userSchema");
+    userSchema = require("../schema/userSchema"),
     bodyParser = require("body-parser");    
 
 const Joi = require("joi");
@@ -14,7 +14,7 @@ var pool = database.pool;
 router.post("/", jsonParser, validateUser);   
 router.put("/", updateUser);
 
-// Performs validation/sanatization on query
+// Performs validation against schema on query
 function validateUser(req, res){
     console.log(req.body);
     Joi.validate(req.body, userSchema, (error, value) =>{
@@ -34,8 +34,9 @@ function createUser(body, res) {
     
     // Check if username already exists
     try{
+        //TODO: replace pool with single connection from pool
         pool.query("SELECT * FROM test WHERE username = ?", [username],function (error, results, fields) {
-            if (error) throw error;
+            if(error) throw error;
             if(!(results === undefined || results.length == 0)){
                 res.json("Username unavailable");
                 return;
@@ -43,18 +44,19 @@ function createUser(body, res) {
 
             //encrypt password
             bcrypt.hash(password, saltRounds, function(err, hash) {
+                if(err) throw err;
                 //store hash in database
                 var query = "INSERT INTO test (username, password, firstname, lastname) VALUES (?, ?, ?, ?)";
 
                 pool.query(query, [username, hash, firstname, lastname], function (error, results, fields) {
-                    if (error) throw error;
+                    if(error) throw error;
                     res.json("User " +username+ " created");
                 });
             });
         });
     } catch(error){
         console.log(error);
-        res.json("MYSQL Error");
+        res.json("Application Error");
     }
 }
 
