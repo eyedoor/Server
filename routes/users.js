@@ -20,7 +20,7 @@ function createUser(req, res, next) {
     // TODO: check if username alreadyexists
     pool.query('SELECT * from test', function (error, results, fields) {
         if (error) throw error;
-        console.log('The solution is: ', results[0].solution);
+        console.log('The solution is: ', results);
     });
 
     //encrypt password
