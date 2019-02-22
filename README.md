@@ -5,9 +5,9 @@ Api link:
     https://joseph-frank.com
 
 ## Endpoints:
----
 
-## /api/users
+
+### /api/users
   
 POST (Create a new user):
 - Send initial user information
@@ -29,7 +29,7 @@ Data format:
 
 ---
 
-## /api/login
+### /api/login
 
 POST (Login to account):
 - Send login information
