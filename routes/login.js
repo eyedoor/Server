@@ -25,23 +25,24 @@ function validateLogin(req, res){
 }
 
 function login(body, res){
-    var username = body.username, 
+    var email = body.email, 
         password = body.password;
 
     try{
-        pool.query("SELECT * FROM test WHERE username = ?", [username],function (error, results, fields) {
+        pool.query("SELECT * FROM User WHERE Email = ?", [email], function (error, results, fields) {
             if(error) throw error;
             if(results === undefined || results.length == 0){
                 res.json("User does not exist");
                 return;
             } else if(results.length > 1){
-                throw "CRITICAL DATABASE ERROR - MULTIPLE USERS WITH SAME USERNAME";
+                throw "CRITICAL DATABASE ERROR - MULTIPLE USERS WITH SAME EMAIL";
             }
 
             //compare to hashed password
-            bcrypt.compare(password, results[0].password, function(err, result) {
+            bcrypt.compare(password, results[0].Password, function(err, result) {
                 if(err) throw err;
                 if(result){
+                    // TODO: issue user JWT and use for further auth
                     res.json("Authenticaion Successful");
                 } else {
                     res.json("Password Incorrect");

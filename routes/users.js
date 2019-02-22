@@ -27,18 +27,18 @@ function validateUser(req, res){
 }
 
 function createUser(body, res) {    
-    var username = body.username, 
+    var email = body.email, 
         password = body.password, 
         firstname = body.firstname, 
         lastname = body.lastname;
     
-    // Check if username already exists
+    // Check if email already exists
     try{
-        //TODO: replace pool with single connection from pool
-        pool.query("SELECT * FROM test WHERE username = ?", [username],function (error, results, fields) {
+        // TODO: replace pool with single connection from pool
+        pool.query("SELECT * FROM User WHERE Email = ?", [email],function (error, results, fields) {
             if(error) throw error;
             if(!(results === undefined || results.length == 0)){
-                res.json("Username unavailable");
+                res.json("Email already in use");
                 return;
             }
 
@@ -46,11 +46,11 @@ function createUser(body, res) {
             bcrypt.hash(password, saltRounds, function(err, hash) {
                 if(err) throw err;
                 //store hash in database
-                var query = "INSERT INTO test (username, password, firstname, lastname) VALUES (?, ?, ?, ?)";
+                var query = "INSERT INTO User (Email, Password, Firstname, Lastname) VALUES (?, ?, ?, ?)";
 
-                pool.query(query, [username, hash, firstname, lastname], function (error, results, fields) {
+                pool.query(query, [email, hash, firstname, lastname], function (error, results, fields) {
                     if(error) throw error;
-                    res.json("User " +username+ " created");
+                    res.json("User " +email+ " created");
                 });
             });
         });
