@@ -1,15 +1,19 @@
 var express = require('express'),
     database = require("../database"),
-    loginSchema = require("../schema/loginSchema");    
+    loginSchema = require("../schema/loginSchema"),
+    jwt = require('jsonwebtoken'),
+    credentials = require('../credentials/credentials');    
 
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 
-var jsonParser = express.json();
 var router = express.Router();  
 var pool = database.pool;
+var failedLogin = {auth: false, message: "Email/Password Incorrect"};
 
-router.post("/", jsonParser, validateLogin);
+router.use(express.json());
+
+router.post("/", validateLogin);
 
 // Performs validation against schema on query
 function validateLogin(req, res){
@@ -18,7 +22,7 @@ function validateLogin(req, res){
         if(error == null){
             login(req.body, res);
         } else {
-            res.json("Malformed Request Body");
+            res.status(400).send("Missing request parameters");
         }
     });
 }
@@ -31,7 +35,7 @@ function login(body, res){
         pool.query("SELECT * FROM User WHERE Email = ?", [email], function (error, results, fields) {
             if(error) throw error;
             if(results === undefined || results.length == 0){
-                res.json("User does not exist");
+                res.status(401).send(failedLogin);
                 return;
             } else if(results.length > 1){
                 throw "CRITICAL DATABASE ERROR - MULTIPLE USERS WITH SAME EMAIL";
@@ -41,16 +45,20 @@ function login(body, res){
             bcrypt.compare(password, results[0].Password, function(err, result) {
                 if(err) throw err;
                 if(result){
-                    // TODO: issue user JWT and use for further auth
-                    res.json("Authenticaion Successful");
+                    // Issue user JWT and use for further auth
+                    jwt.sign({ id: results[0].UserID }, credentials.secret, {expiresIn:"7d"}, function(err, token){
+                        if(err) throw err;
+                        res.status(200).send({auth: true, token: token});
+                    });
+
                 } else {
-                    res.json("Password Incorrect");
+                    res.status(401).send(failedLogin);
                 }
             });
         });
     } catch(error){
         console.log(error);
-        res.json("Application Error");
+        res.status(500).send("Application Error");
     }
 }
 

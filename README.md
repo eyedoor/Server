@@ -6,7 +6,7 @@ Api link:
 
 ## Endpoints:
 
-**API will only send back string responses with different messages (for now)**
+**Undocumented API endpoints will only send back string responses (for now)**
 
 ### /api/users
   
@@ -15,14 +15,14 @@ POST (Create a new user):
 - Datatype must be `"application/json"`
 - All data sent in body of request as JSON
 
-Data format:
+Request format:
 
 ``` json
 {
-    "email": "example@gmail.com",
-    "password": "test",
-    "firstname": "John",
-    "lastname": "Smith"
+    "email": "string",
+    "password": "string",
+    "firstname": "string",
+    "lastname": "string"
 }
 ```
 
@@ -35,11 +35,24 @@ POST (Login to account):
 - Datatype must be `"application/json"`
 - All data sent in body of request as JSON
 
-Data format:
+Request format:
 
 ```json
 {
-    "email": "example@gmail.com",
-    "password": "test"
+    "email": "string",
+    "password": "string"
 }
 ```
+
+Response format:
+
+```json
+{
+    "auth" : "bool",
+    "token" : "string"
+}
+
+```
+
+* response includes authentication status `"auth"`, and a Json Web Token `"token"`
+* **All other request must include this token in the request header as the `"x-access-token"` parameter**

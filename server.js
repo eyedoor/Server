@@ -1,4 +1,5 @@
 var express = require("express");
+const PORT = process.env.PORT || 3000;
 
 // Route middleware
 var images = require("./routes/images"),
@@ -10,12 +11,12 @@ var images = require("./routes/images"),
 var app = express();
 
 // Assign routes
-app.use('/api/login', login);
-app.use('/api/users', users);
-app.use('/api/events', events);
-app.use('/api/people', people);
-app.use('/api/images', images);
+app.use('/login', login);
+app.use('/users', users);
+app.use('/events', events);
+app.use('/people', people);
+app.use('/images', images);
 
-app.listen(3000, () => {
-	console.log("Server running on port 3000");
+app.listen(PORT, () => {
+	console.log("Server is listenting on port " + PORT);
 });

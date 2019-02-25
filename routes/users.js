@@ -6,11 +6,12 @@ const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-var jsonParser = express.json();
 var router = express.Router();  
 var pool = database.pool;
 
-router.post("/", jsonParser, validateUser);   
+router.use(express.json());
+
+router.post("/", validateUser);   
 router.put("/", updateUser);
 
 // Performs validation against schema on query
@@ -20,7 +21,7 @@ function validateUser(req, res){
         if(error == null){
             createUser(req.body, res);
         } else {
-            res.json("Malformed Request Body");
+            res.status(400).send("Missing request parameters");
         }
     });
 }
@@ -37,7 +38,7 @@ function createUser(body, res) {
         pool.query("SELECT * FROM User WHERE Email = ?", [email],function (error, results, fields) {
             if(error) throw error;
             if(!(results === undefined || results.length == 0)){
-                res.json("Email already in use");
+                res.status(403).send("Email already in use");
                 return;
             }
 
@@ -49,13 +50,13 @@ function createUser(body, res) {
 
                 pool.query(query, [email, hash, firstname, lastname], function (error, results, fields) {
                     if(error) throw error;
-                    res.json("User " +email+ " created");
+                    res.status(201).send("User created");
                 });
             });
         });
     } catch(error){
         console.log(error);
-        res.json("Application Error");
+        res.status(500).send("Application Error");
     }
 }
 
