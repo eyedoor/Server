@@ -1,12 +1,11 @@
 var express = require('express'),
     database = require("../database"),
-    loginSchema = require("../schema/loginSchema"),
-    bodyParser = require("body-parser");    
+    loginSchema = require("../schema/loginSchema");    
 
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 
-var jsonParser = bodyParser.json();
+var jsonParser = express.json();
 var router = express.Router();  
 var pool = database.pool;
 

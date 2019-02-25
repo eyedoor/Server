@@ -6,6 +6,7 @@ Api link:
 
 ## Endpoints:
 
+**API will only send back string responses with different messages (for now)**
 
 ### /api/users
   
@@ -25,8 +26,6 @@ Data format:
 }
 ```
 
-- Will only send back string responses with different messages (for now)
-
 ---
 
 ### /api/login
@@ -44,5 +43,3 @@ Data format:
     "password": "test"
 }
 ```
-
-- Will only send back string responses with different messages (for now)

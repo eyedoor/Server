@@ -1,13 +1,12 @@
 var express = require('express'),
     database = require("../database"),
-    userSchema = require("../schema/userSchema"),
-    bodyParser = require("body-parser");    
+    userSchema = require("../schema/userSchema");    
 
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-var jsonParser = bodyParser.json();
+var jsonParser = express.json();
 var router = express.Router();  
 var pool = database.pool;
 

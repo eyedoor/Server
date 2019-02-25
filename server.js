@@ -1,5 +1,4 @@
-var express = require("express"),
-	mysql = require("mysql");
+var express = require("express");
 
 // Route middleware
 var images = require("./routes/images"),
