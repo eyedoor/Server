@@ -3,10 +3,10 @@ const PORT = process.env.PORT || 3000;
 
 // Route middleware
 var images = require("./routes/images"),
-	users = require("./routes/users"),
-	events = require("./routes/events"),
-	login = require("./routes/login"),
-	people = require("./routes/people");
+    users = require("./routes/users"),
+    events = require("./routes/events"),
+    login = require("./routes/login"),
+    people = require("./routes/people");
 
 var app = express();
 
@@ -18,5 +18,5 @@ app.use('/people', people);
 app.use('/images', images);
 
 app.listen(PORT, () => {
-	console.log("Server is listenting on port " + PORT);
+    console.log("Server is listenting on port " + PORT);
 });

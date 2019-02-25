@@ -8,6 +8,8 @@ Api link:
 
 **Undocumented API endpoints will only send back string responses (for now)**
 
+![Endpoints](images/api_endpoints.png)
+
 ### /api/users
   
 POST (Create a new user):
