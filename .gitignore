@@ -1,5 +1,6 @@
 # Project
 credentials/
+.DS_Store
 
 # Logs
 logs
