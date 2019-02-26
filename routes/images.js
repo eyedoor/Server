@@ -1,12 +1,22 @@
-var express = require('express');
+var express = require('express'),
+    auth = require('../auth/jwtAuth');
+
 var router = express.Router();
 
-router.get("/", (req, res, next) => {
-    res.json("get images");
-});
+router.use(express.json());
+router.use(auth);
 
-router.post("/", (req, res, next) => {
-    res.json("post images");
-});
+router.get("/", sendImage);
+router.post("/", receiveImage);
+
+function sendImage(req, res){
+    // Send Image as response
+    console.log("In send images " + res.locals.id);
+    res.status(200).send("Download image")
+}
+
+function receiveImage(req, res){
+
+}
 
 module.exports = router;

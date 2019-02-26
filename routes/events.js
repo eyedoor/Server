@@ -1,8 +1,28 @@
-var express = require('express');
-var router = express.Router();
+var express = require('express'),
+    auth = require('../auth/jwtAuth'),
+    database = require("../database");
 
-router.get("/", (req, res, next) => {
-    res.json("get events");
-});
+var router = express.Router();
+var pool = database.pool;
+
+router.use(express.json());
+router.use(auth);
+
+router.get("/", getEvents);
+
+// Return users a list of event IDs and timestamps to verify against internal ledger
+function getEvents(req, res){
+    var userId = res.locals.userId;
+
+    try{
+        pool.query("SELECT EventID, Timesent FROM Event WHERE UserID = ?", [userId], function (err, results, fields) {
+            if(err) throw err;
+            res.status(200).json(results);
+        });
+    }catch(err){
+        console.log(err);
+        res.status(500).send("Database error");
+    }
+}
 
 module.exports = router;
