@@ -8,10 +8,10 @@ var pool = database.pool;
 router.use(express.json());
 router.use(auth);
 
-router.get("/", getEvents);
+router.get("/", getEventList);
 
 // Return users a list of event IDs and timestamps to verify against internal ledger
-function getEvents(req, res){
+function getEventList(req, res){
     var userId = res.locals.userId;
 
     try{
