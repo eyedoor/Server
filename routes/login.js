@@ -46,7 +46,7 @@ function login(body, res){
                 if(err) throw err;
                 if(result){
                     // Issue user JWT and use for further auth
-                    jwt.sign({ id: results[0].UserID }, credentials.secret, {expiresIn:"7d"}, function(err, token){
+                    jwt.sign({ id: results[0].UserID, jwtType : "user"}, credentials.secret, {expiresIn:"30d"}, function(err, token){
                         if(err) throw err;
                         res.status(200).send({auth: true, token: token});
                     });

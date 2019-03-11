@@ -10,17 +10,17 @@ var pool = database.pool;
 // router.use(express.json());
 
 router.get("/", express.json(), auth, downloadImage);
-router.post("/", express.urlencoded({limit:'500kb', extended:false}), uploadImage);
+router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth, uploadImage);
 
 function downloadImage(req, res){
     // Send Image as response
-    console.log("In send images " + res.locals.id);
     var userId = res.locals.userId;
-    var eventId = req.body.eventId;
+    var eventId = req.query.eventId;
     if(!eventId) return res.status(400).json("Event ID missing");
 
     try{
-        pool.query("SELECT FilePath FROM Event WHERE UserID = ?, EventID = ?", [userId, eventId], function (err, results, fields) {
+        pool.query("SELECT FilePath FROM Event WHERE UserID = ? AND EventID = ?", [userId, eventId], 
+        function (err, results, fields) {
             if(err) throw err;
             if(results.length == 0){
                 return res.status(404).json("Event not found");
@@ -36,23 +36,20 @@ function downloadImage(req, res){
         console.log(err);
         res.status(500).send("Application error");
     }
-
-    res.status(200).send("Download image")
 }
 
 function uploadImage(req, res){
-    console.log(req.body.image);
     var base64Data = req.body.image;
-    var filename = shortid.generate() + ".png";
-    var filepath = "srv/images/" + filename;
+    var filepath = "/srv/images/" + shortid.generate() + ".png";
 
     try{
-        fs.writeFile("/srv/images/"+filename, base64Data, 'base64', function(err) {
+        fs.writeFile(filepath, base64Data, 'base64', function(err) {
             if(err) throw err;
-            //TODO: Log event in database
-            pool.query("INSERT INTO Event (FilePath, Timesent) VALUES (?, NOW())", [filepath], function (err, results, fields) {
+            // Log event in database
+            pool.query("INSERT INTO Event (FilePath, Timesent, UserID) VALUES (?, NOW(), ?)", [filepath, res.locals.userId], 
+            function (err, results, fields) {
                 if(err) throw err;
-                res.status(201).send("File uploaded Successfully");
+                res.status(201).send("File uploaded Successfully"); 
             });
         });
     }catch(err){
