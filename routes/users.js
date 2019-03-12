@@ -11,26 +11,25 @@ var pool = database.pool;
 
 router.use(express.json());
 
-router.post("/", validateUser);   
+router.post("/", validateUser, createUser); 
 router.put("/", updateUser);
 
 // Performs validation against schema on query
-function validateUser(req, res){
-    console.log(req.body);
+function validateUser(req, res, next){
     Joi.validate(req.body, userSchema, (error, value) =>{
         if(error == null){
-            createUser(req.body, res);
+            next();
         } else {
             res.status(400).send("Missing request parameters");
         }
     });
 }
 
-function createUser(body, res) {    
-    var email = body.email, 
-        password = body.password, 
-        firstname = body.firstname, 
-        lastname = body.lastname;
+function createUser(req, res) {    
+    var email = req.body.email, 
+        password = req.body.password, 
+        firstname = req.body.firstname, 
+        lastname = req.body.lastname;
     
     // Check if email already exists
     try{

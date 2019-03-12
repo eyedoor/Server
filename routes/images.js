@@ -7,10 +7,8 @@ var express = require('express'),
 var router = express.Router();
 var pool = database.pool;
 
-// router.use(express.json());
-
-router.get("/", express.json(), auth, downloadImage);
-router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth, uploadImage);
+router.get("/", auth.verifyUser, downloadImage);
+router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth.verifyDevice, uploadImage);
 
 function downloadImage(req, res){
     // Send Image as response
@@ -25,10 +23,10 @@ function downloadImage(req, res){
             if(results.length == 0){
                 return res.status(404).json("Event not found");
             }
-            //TODO: Return base64 encoding of image
+            // Return base64 encoding of .png image
             fs.readFile(results[0].FilePath, function(err, data) {
                 if(err) throw err;
-                var base64Image = new Buffer(data).toString('base64');
+                var base64Image = Buffer.from(data).toString('base64');
                 res.status(200).send(base64Image);
             });
         });

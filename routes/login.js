@@ -1,10 +1,8 @@
 var express = require('express'),
     database = require("../database"),
-    loginSchema = require("../schema/loginSchema"),
     jwt = require('jsonwebtoken'),
     credentials = require('../credentials/credentials');    
 
-const Joi = require("joi");
 const bcrypt = require("bcrypt");
 
 var router = express.Router();  
@@ -13,24 +11,14 @@ var failedLogin = {auth: false, message: "Email/Password Incorrect"};
 
 router.use(express.json());
 
-router.post("/", validateLogin);
+router.post("/", login);
 
-// Performs validation against schema on query
-function validateLogin(req, res){
-    console.log(req.body);
-    Joi.validate(req.body, loginSchema, (error, value) =>{
-        if(error == null){
-            login(req.body, res);
-        } else {
-            res.status(400).send("Missing request parameters");
-        }
-    });
-}
+function login(req, res){
+    var email = req.body.email;
+    var password = req.body.password;
 
-function login(body, res){
-    var email = body.email, 
-        password = body.password;
-
+    if(!(email && password)) return res.status(400).send("Missing request parameters");
+    
     try{
         pool.query("SELECT * FROM User WHERE Email = ?", [email], function (error, results, fields) {
             if(error) throw error;
@@ -45,12 +33,15 @@ function login(body, res){
             bcrypt.compare(password, results[0].Password, function(err, result) {
                 if(err) throw err;
                 if(result){
-                    // Issue user JWT and use for further auth
-                    jwt.sign({ id: results[0].UserID, jwtType : "user"}, credentials.secret, {expiresIn:"30d"}, function(err, token){
+                    // Issue user JWT for both user and device
+                    jwt.sign({ id: results[0].UserID, jwtType : "user"}, credentials.secret, {expiresIn:"30d"}, 
+                    function(err, userToken){
                         if(err) throw err;
-                        res.status(200).send({auth: true, token: token});
+                        jwt.sign({ id: results[0].UserID, jwtType : "device"}, credentials.secret, function(err, deviceToken){
+                            if(err) throw err;
+                            res.status(200).send({auth: true, token: userToken, deviceToken: deviceToken});
+                        });
                     });
-
                 } else {
                     res.status(401).send(failedLogin);
                 }

@@ -1,12 +1,12 @@
 var express = require('express'),
-    auth = require('../auth/jwtAuth'),
+    userAuth = require('../auth/jwtAuth').verifyUser,
     database = require("../database");
 
 var router = express.Router();
 var pool = database.pool;
 
 router.use(express.json());
-router.use(auth);
+router.use(userAuth);
 
 router.get("/", getEventList);
 
@@ -15,7 +15,8 @@ function getEventList(req, res){
     var userId = res.locals.userId;
 
     try{
-        pool.query("SELECT EventID, Timesent FROM Event WHERE UserID = ?", [userId], function (err, results, fields) {
+        pool.query("SELECT EventID, Timesent FROM Event WHERE UserID = ? order by EventID DESC", [userId], 
+        function (err, results, fields) {
             if(err) throw err;
             res.status(200).json(results);
         });
