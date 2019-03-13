@@ -14,7 +14,7 @@ Api link:
 |/api/images| Creates a new<br />entry from image/gif | Returns the User's<br />current image/gif | - | - |
 |/api/users| Creates a new<br />User | - | Update User<br />information | - |
 |/api/events| Add event | Returns list of<br />events for a User | - | - |
-|/api/friends| Create new Friend<br />entry from image | Returns User's saved Friends | - | Remove person entry |
+|/api/friends| Create new Friend<br />entry from image | Returns User's saved Friends | - | Remove Friend entry |
 
 
 ---
@@ -135,7 +135,7 @@ Response:
 
 ---
 
-### /api/people
+### /api/friends
 
 
 **POST (Create a new Friend entry):**
