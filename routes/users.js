@@ -34,26 +34,38 @@ function createUser(req, res) {
     
     // Check if email already exists
     try{
-        // TODO: replace pool with single connection from pool
-        pool.query("SELECT * FROM User WHERE Email = ?", [email],function (error, results, fields) {
-            if(error) throw error;
-            if(!(results === undefined || results.length == 0)){
-                res.status(403).send("Email already in use");
-                return;
-            }
+        pool.getConnection(function(err, conn) {
+            if(err) throw err;
 
-            //encrypt password
-            bcrypt.hash(password, saltRounds, function(err, hash) {
-                if(err) throw err;
-                //store hash in database
-                var query = "INSERT INTO User (Email, Password, Firstname, Lastname) VALUES (?, ?, ?, ?)";
+            conn.query("SELECT * FROM User WHERE Email = ?", [email],function (error, results, fields) {
+                if(error){
+                    conn.release();
+                    throw error;
+                }
 
-                pool.query(query, [email, hash, firstname, lastname], function (error, results, fields) {
-                    if(error) throw error;
-                    var userId = results.insertId;
-                    fs.mkdir("/srv/people/" + userId, function(err){
-                        if(err) throw err
-                        res.status(201).send("User created");
+                if(results.length != 0){
+                    res.status(403).send("Email already in use");
+                    conn.release();
+                    return;
+                }
+
+                //encrypt password
+                bcrypt.hash(password, saltRounds, function(err, hash) {
+                    if(err){
+                        conn.release();
+                        throw err;
+                    }
+                    //store hash in database
+                    var query = "INSERT INTO User (Email, Password, Firstname, Lastname) VALUES (?, ?, ?, ?)";
+
+                    conn.query(query, [email, hash, firstname, lastname], function (error, results, fields) {
+                        conn.release();
+                        if(error) throw error;
+                        var userId = results.insertId;
+                        fs.mkdir("/srv/people/" + userId, function(err){
+                            if(err) throw err
+                            res.status(201).send("User created");
+                        });
                     });
                 });
             });

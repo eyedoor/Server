@@ -11,15 +11,7 @@ router.get("/");
 router.post("/", express.urlencoded({limit:'1mb', extended:false}), auth.verifyUser, createPerson);
 router.delete("/");
 
-function createPerson(req, res){
-    /* 
-    - firstname, lastname, image in body
-    1. verify params
-    2. create person entry in db
-        - friend and friendimage tables need to be addressed 
-    3. write image to user folder in /srv/people/
-    */
-
+function createPerson(req, res){ 
     var firstname = req.body.firstname,
         lastname = req.body.lastname,
         base64Data = req.body.image;
@@ -30,6 +22,7 @@ function createPerson(req, res){
     var filepath = "/srv/people/" + userId + "/" + shortid.generate() + ".png";
 
     try{
+        //Save friend image
         fs.writeFile(filepath, base64Data, 'base64', function(err) {
             if(err) throw err;
             // Log person in database
