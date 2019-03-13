@@ -31,10 +31,10 @@ Request body format:
 
 ``` json
 {
-    "email": "string",
-    "password": "string",
-    "firstname": "string",
-    "lastname": "string"
+    "email": "String",
+    "password": "String",
+    "firstname": "String",
+    "lastname": "String"
 }
 ```
 
@@ -51,8 +51,8 @@ Request body format:
 
 ```json
 {
-    "email": "string",
-    "password": "string"
+    "email": "String",
+    "password": "String"
 }
 ```
 
@@ -63,8 +63,8 @@ Response format:
 ```json
 {
     "auth" : "bool",
-    "token" : "string",
-    "deviceToken" : "string"
+    "token" : "String",
+    "deviceToken" : "String"
 }
 ```
 
@@ -88,11 +88,12 @@ Response format:
 ```json
 [
     {
-        "EventID": 1,
-        "Timesent": "2019-03-12T20:41:31.000Z"
+        "EventID": Integer,
+        "Timesent": "YYYY-MM-DDTHH:MI:SS.000Z"
     }
 ]
 ```
+* In `"Timesent"`, `T` and `.000Z` are alway present in this exact format
 
 ---
 
@@ -122,7 +123,7 @@ Headers:
 Request body format:
 ```json
 {
-    "image" : "string"
+    "image" : "String"
 }
 
 ```
@@ -147,12 +148,38 @@ Headers:
 Request body format:
 ```json
 {
-    "firstname" : "string",
-    "lastname" : "string",
-    "image" : "string"
+    "firstname" : "String",
+    "lastname" : "String",
+    "image" : "String"
 }
 
 ```
+* Image string encoded in Base64
+* Request **must** be less than 1mb
+
+Response:
+* Confirmation/Error Message
+
+
+**GET (Retrieve a list of friends):**
+
+
+Headers:
+* `"x-access-token"` : The user's JSON Web token
+
+Response format:
+* Array of people
+
+```json
+[
+    {
+        "FriendID": Integer,
+        "FriendFirst": "String",
+        "FriendLast": "String"
+    }
+]
+```
+
 * Image string encoded in Base64
 * Request **must** be less than 1mb
 
