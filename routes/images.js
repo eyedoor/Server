@@ -48,6 +48,7 @@ function uploadImage(req, res, next){
             pool.query(query, [filepath, res.locals.userId], function (err, results, fields) {
                 if(err) throw err;
                 res.status(201).send("File uploaded Successfully"); 
+                res.locals.filepath = filepath;
                 next();
             });
         });
@@ -58,6 +59,9 @@ function uploadImage(req, res, next){
 }
 
 function performFacialRecognition(req, res){
+    var filepath = res.locals.filepath;
+    var userId = res.locals.userId;
+    var userDirectory = "/srv/people/" + userId;
     //TODO: Trigger Facial Recogntion Proccessing on event here
 }
 
