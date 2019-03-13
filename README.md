@@ -27,7 +27,7 @@ Api link:
 - Datatype must be `"application/json"`
 - All data sent in body of request as JSON
 
-Request format:
+Request body format:
 
 ``` json
 {
@@ -47,7 +47,7 @@ Request format:
 - Datatype must be `"application/json"`
 - All data sent in body of request as JSON
 
-Request format:
+Request body format:
 
 ```json
 {
@@ -119,9 +119,42 @@ Headers:
 * `"Content-Type"` : `"application/x-www-form-urlencoded"`
 * `"x-access-token"` : The device's JSON Web token
 
-Request format:
-* An image string encoded in Base64 in the request body
-* File **must** be less than 500kb
+Request body format:
+```json
+{
+    "image" : "string"
+}
+
+```
+* Image string encoded in Base64
+* Request **must** be less than 500kb
+
+Response:
+* Confirmation/Error Message
+
+---
+
+### /api/people
+
+
+**POST (Create a new Friend entry):**
+
+
+Headers:
+* `"Content-Type"` : `"application/x-www-form-urlencoded"`
+* `"x-access-token"` : The user's JSON Web token
+
+Request body format:
+```json
+{
+    "firstname" : "string",
+    "lastname" : "string",
+    "image" : "string"
+}
+
+```
+* Image string encoded in Base64
+* Request **must** be less than 1mb
 
 Response:
 * Confirmation/Error Message
