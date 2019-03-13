@@ -36,7 +36,7 @@ function downloadImage(req, res){
     }
 }
 
-function uploadImage(req, res){
+function uploadImage(req, res, next){
     var base64Data = req.body.image;
     var filepath = "/srv/images/" + shortid.generate() + ".png";
 
@@ -44,16 +44,21 @@ function uploadImage(req, res){
         fs.writeFile(filepath, base64Data, 'base64', function(err) {
             if(err) throw err;
             // Log event in database
-            pool.query("INSERT INTO Event (FilePath, Timesent, UserID) VALUES (?, NOW(), ?)", [filepath, res.locals.userId], 
-            function (err, results, fields) {
+            var query = "INSERT INTO Event (FilePath, Timesent, UserID) VALUES (?, NOW(), ?)";
+            pool.query(query, [filepath, res.locals.userId], function (err, results, fields) {
                 if(err) throw err;
                 res.status(201).send("File uploaded Successfully"); 
+                next();
             });
         });
     }catch(err){
         console.log(err);
         res.status(500).send("Application error");
     }
+}
+
+function performFacialRecognition(req, res){
+    //TODO: Trigger Facial Recogntion Proccessing on event here
 }
 
 module.exports = router;
