@@ -1,6 +1,7 @@
 var express = require('express'),
     database = require("../database"),
-    userSchema = require("../schema/userSchema");    
+    userSchema = require("../schema/userSchema"),
+    fs = require('fs');
 
 const Joi = require("joi");
 const bcrypt = require("bcrypt");
@@ -49,7 +50,11 @@ function createUser(req, res) {
 
                 pool.query(query, [email, hash, firstname, lastname], function (error, results, fields) {
                     if(error) throw error;
-                    res.status(201).send("User created");
+                    var userId = results.insertId;
+                    fs.mkdir("/srv/people/" + userId, function(err){
+                        if(err) throw err
+                        res.status(201).send("User created");
+                    });
                 });
             });
         });

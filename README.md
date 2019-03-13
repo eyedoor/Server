@@ -17,6 +17,8 @@ Api link:
 |/api/people| Create new person<br />entry from image | - | - | Remove person entry |
 
 
+---
+
 
 ### /api/users
   
