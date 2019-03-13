@@ -14,7 +14,7 @@ Api link:
 |/api/images| Creates a new<br />entry from image/gif | Returns the User's<br />current image/gif | - | - |
 |/api/users| Creates a new<br />User | - | Update User<br />information | - |
 |/api/events| Add event | Returns list of<br />events for<br />User | - | - |
-|/api/people| Create new person<br />entry from image | - | - | Remove person entry |
+|/api/people| Create new person<br />entry from image | Retrieve list of people | - | Remove person entry |
 
 
 ---
@@ -78,7 +78,7 @@ Response format:
 **GET (Retrieve list of events):**
 
 
-Headers:
+Request Headers:
 * `"Content-Type"` : `"application/json"`
 * `"x-access-token"` : The current user's JSON Web token
 
@@ -101,7 +101,7 @@ Response format:
 
 **GET (Download single image by event ID):**
 
-Headers:
+Request Headers:
 * `"x-access-token"` : The current user's JSON Web token
 
 Query Parameters:
@@ -116,7 +116,7 @@ Response:
 **POST (Upload Image):**
 <br>**For device use only**
 
-Headers:
+Request Headers:
 * `"Content-Type"` : `"application/x-www-form-urlencoded"`
 * `"x-access-token"` : The device's JSON Web token
 
@@ -141,7 +141,7 @@ Response:
 **POST (Create a new Friend entry):**
 
 
-Headers:
+Request Headers:
 * `"Content-Type"` : `"application/x-www-form-urlencoded"`
 * `"x-access-token"` : The user's JSON Web token
 
@@ -164,7 +164,7 @@ Response:
 **GET (Retrieve a list of friends):**
 
 
-Headers:
+Request Headers:
 * `"x-access-token"` : The user's JSON Web token
 
 Response format:
@@ -179,9 +179,3 @@ Response format:
     }
 ]
 ```
-
-* Image string encoded in Base64
-* Request **must** be less than 1mb
-
-Response:
-* Confirmation/Error Message
