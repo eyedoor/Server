@@ -8,7 +8,7 @@ var router = express.Router();
 var pool = database.pool;
 
 router.get("/");
-router.post("/", auth.verifyUser, createPerson);
+router.post("/", express.urlencoded({limit:'1mb', extended:false}), auth.verifyUser, createPerson);
 router.delete("/");
 
 function createPerson(req, res){
