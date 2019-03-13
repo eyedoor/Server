@@ -13,8 +13,8 @@ Api link:
 |/api/login| Creates new JWT<br />for user authentication | - | - | - |
 |/api/images| Creates a new<br />entry from image/gif | Returns the User's<br />current image/gif | - | - |
 |/api/users| Creates a new<br />User | - | Update User<br />information | - |
-|/api/events| Add event | Returns list of<br />events for<br />User | - | - |
-|/api/people| Create new person<br />entry from image | Retrieve list of people | - | Remove person entry |
+|/api/events| Add event | Returns list of<br />events for a User | - | - |
+|/api/friends| Create new Friend<br />entry from image | Returns User's saved Friends | - | Remove person entry |
 
 
 ---
