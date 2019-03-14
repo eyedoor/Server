@@ -26,23 +26,17 @@ function createPerson(req, res){
         pool.query(friendsQuery, [firstname, lastname, userId], function (err, results, fields) {
             if(err) throw err;
             var friendId = results.insertId;
-            var friendDirectory = "/srv/people/" + userId + "/" + friendId;
+            var filepath = "/srv/people/" + userId + "/" + friendId + ".png";
 
-            //create friend directory
-            fs.mkdir(friendDirectory, function(err){
-                if(err) throw err;                   
-                var filepath = friendDirectory + "/" + shortid.generate() + ".png"; 
+            //write image file
+            fs.writeFile(filepath , base64Data, 'base64', function(err) {
+                if(err) throw err;
 
-                //write image file
-                fs.writeFile(filepath , base64Data, 'base64', function(err) {
+                //FriendImage entry
+                pool.query(friendTableQuery, [filepath, friendId], function (err, results, fields) { 
                     if(err) throw err;
-
-                    //FriendImage entry
-                    pool.query(friendTableQuery, [filepath, friendId], function (err, results, fields) { 
-                        if(err) throw err;
-                        res.status(200).send("Person added successfully");
-                    }); 
-                });
+                    res.status(200).send("Person added successfully");
+                }); 
             });
         });
     }catch(err){
