@@ -2,13 +2,14 @@ var express = require('express'),
     auth = require('../auth/jwtAuth'),
     fs = require('fs'),
     shortid = require('shortid'),
-    database = require('../database');
+    database = require('../database'),
+    spawn = require("child_process").spawn;
 
 var router = express.Router();
 var pool = database.pool;
 
 router.get("/", auth.verifyUser, downloadImage);
-router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth.verifyDevice, uploadImage);
+router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth.verifyDevice, uploadImage, performFacialRecognition);
 
 function downloadImage(req, res){
     // Send Image as response
@@ -47,7 +48,7 @@ function uploadImage(req, res, next){
             var query = "INSERT INTO Event (FilePath, Timesent, UserID) VALUES (?, NOW(), ?)";
             pool.query(query, [filepath, res.locals.userId], function (err, results, fields) {
                 if(err) throw err;
-                res.status(201).send("File uploaded Successfully"); 
+                res.status(201).send("File uploaded Successfully");
                 res.locals.filepath = filepath;
                 next();
             });
@@ -58,11 +59,30 @@ function uploadImage(req, res, next){
     }
 }
 
-function performFacialRecognition(req, res){
+function performFacialRecognition(req, res, next){
     var filepath = res.locals.filepath;
     var userId = res.locals.userId;
     var userDirectory = "/srv/people/" + userId;
-    //TODO: Trigger Facial Recogntion Proccessing on event here
+    
+    //Trigger Facial Recogntion Proccessing on event
+    const faceRecognition = spawn('python3', ['face_recognition/faceRecognition.py', filepath, userDirectory]);
+
+    faceRecognition.stdout.on('data', function(data) {
+        var matchData = data.toString();
+        console.log("Matched Friend IDs: " + matchData);
+        var jsonMatchData = JSON.parse(matchData);
+        res.locals.numPeople = jsonMatchData.count;
+        res.locals.matchedPeople = jsonMatchData.results;
+        next();
+    });
+
+    faceRecognition.stderr.on('data', (data) => {
+        console.log(`stderr: ${data}`);
+    });
+    
+    faceRecognition.on('close', (code) => {
+        console.log(`child process exited with code ${code}`);
+    });
 }
 
 module.exports = router;
