@@ -81,7 +81,6 @@ function performFacialRecognition(req, res, next){
 
     faceRecognition.stdout.on('data', function(data) {
         var matchData = data.toString();
-        console.log("Matched Friend IDs: " + matchData);
         var jsonMatchData = JSON.parse(matchData);
         res.locals.numPeople = jsonMatchData.count;
         res.locals.matchedPeople = jsonMatchData.results;
@@ -111,8 +110,6 @@ function sendPushNotification(req, res){
     try{
         pool.query(friendQuery, friendIds, function (err, results, fields) {
             if(err) throw err;
-            console.log(results);
-
             var message = buildPushNotification(results, numUnknownPeople);
             console.log(message);
         });
