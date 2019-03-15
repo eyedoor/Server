@@ -6,10 +6,11 @@ var express = require('express'),
 
 var router = express.Router();
 var pool = database.pool;
+const NUM_ALLOWED_FRIENDS = 5;
 
 router.get("/", auth.verifyUser, getPeople);
 router.post("/", express.urlencoded({limit:'1mb', extended:false}), auth.verifyUser, createPerson);
-router.delete("/");
+router.delete("/", auth.verifyUser, deletePerson);
 
 function createPerson(req, res){ 
     var firstname = req.body.firstname,
@@ -18,25 +19,33 @@ function createPerson(req, res){
     if(!(firstname && lastname && base64Data)) return res.status(400).json("Parameters Missing");
     
     var userId = res.locals.userId;
-    var friendsQuery = "INSERT INTO Friends (FriendFirst, FriendLast, UserID) VALUES (?,?,?)";
-    var friendTableQuery = "INSERT INTO FriendImage (FilePath, FriendID) VALUES (?,?)";
+    var friendLimitQuery = "SELECT FriendID FROM Friends WHERE UserID = ?";
+    var insertFriendQuery = "INSERT INTO Friends (FriendFirst, FriendLast, UserID) VALUES (?,?,?)";
+    var friendImageQuery = "INSERT INTO FriendImage (FilePath, FriendID) VALUES (?,?)";
 
     try{
-        //Friends entry
-        pool.query(friendsQuery, [firstname, lastname, userId], function (err, results, fields) {
+        //Check for max friends
+        pool.query(friendLimitQuery, [userId], function (err, results, fields) {
             if(err) throw err;
-            var friendId = results.insertId;
-            var filepath = "/srv/people/" + userId + "/" + friendId + ".png";
+            if(results.length == NUM_ALLOWED_FRIENDS){
+                return res.status(403).send("Max Friends Reached");
+            } 
 
-            //write image file
-            fs.writeFile(filepath , base64Data, 'base64', function(err) {
+            pool.query(insertFriendQuery, [firstname, lastname, userId], function (err, results, fields) {
                 if(err) throw err;
-
-                //FriendImage entry
-                pool.query(friendTableQuery, [filepath, friendId], function (err, results, fields) { 
+                var friendId = results.insertId;
+                var filepath = "/srv/people/" + userId + "/" + friendId + ".png";
+    
+                //write image file
+                fs.writeFile(filepath , base64Data, 'base64', function(err) {
                     if(err) throw err;
-                    res.status(200).send("Person added successfully");
-                }); 
+    
+                    //FriendImage entry
+                    pool.query(friendImageQuery, [filepath, friendId], function (err, results, fields) { 
+                        if(err) throw err;
+                        res.status(200).send("Person added successfully");
+                    }); 
+                });
             });
         });
     }catch(err){

@@ -9,7 +9,7 @@ var router = express.Router();
 var pool = database.pool;
 
 router.get("/", auth.verifyUser, downloadImage);
-router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth.verifyDevice, uploadImage, performFacialRecognition);
+router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth.verifyDevice, uploadImage, performFacialRecognition, sendPushNotification);
 
 function downloadImage(req, res){
     // Send Image as response
@@ -38,6 +38,7 @@ function downloadImage(req, res){
 }
 
 function uploadImage(req, res, next){
+    var userId = res.locals.userId;
     var base64Data = req.body.image;
     var filepath = "/srv/images/" + shortid.generate() + ".png";
 
@@ -50,7 +51,14 @@ function uploadImage(req, res, next){
                 if(err) throw err;
                 res.status(201).send("File uploaded Successfully");
                 res.locals.filepath = filepath;
-                next();
+
+                //Check for facial recognition
+                var friendQuery = "SELECT FriendID FROM Friends WHERE UserID = ?";
+                pool.query(friendQuery, [userId], function (err, results, fields) {
+                    if(err) throw err;
+                    res.locals.hasFriends = (results.length > 0);
+                    return next();
+                });
             });
         });
     }catch(err){
@@ -60,6 +68,10 @@ function uploadImage(req, res, next){
 }
 
 function performFacialRecognition(req, res, next){
+    if(!res.locals.hasFriends){
+        return next();
+    }
+    
     var filepath = res.locals.filepath;
     var userId = res.locals.userId;
     var userDirectory = "/srv/people/" + userId;
@@ -73,16 +85,73 @@ function performFacialRecognition(req, res, next){
         var jsonMatchData = JSON.parse(matchData);
         res.locals.numPeople = jsonMatchData.count;
         res.locals.matchedPeople = jsonMatchData.results;
-        next();
+        return next();
     });
 
     faceRecognition.stderr.on('data', (data) => {
         console.log(`stderr: ${data}`);
     });
+}
+
+function sendPushNotification(req, res){
+    if(!res.locals.hasFriends){
+        return console.log("Someone is at the door!")
+    }
     
-    faceRecognition.on('close', (code) => {
-        console.log(`child process exited with code ${code}`);
-    });
+    var numPeople = res.locals.numPeople;
+    var friendIds = res.locals.matchedPeople;
+    var numUnknownPeople = numPeople - friendIds.length;
+    
+    var friendQuery = "SELECT FriendFirst FROM Friends WHERE FriendID IN (?";
+    for(var i = 1; i < friendIds.length; i++){
+        friendQuery += ",?";
+    }
+    friendQuery += ")";
+
+    try{
+        pool.query(friendQuery, friendIds, function (err, results, fields) {
+            if(err) throw err;
+            console.log(results);
+
+            var message = buildPushNotification(results, numUnknownPeople);
+            console.log(message);
+        });
+    }catch(err){
+        console.log(err);
+    }
+}
+
+function buildPushNotification(results, numUnknown){
+    var message = "";
+    if(numUnknown > 0){
+        results.push({FriendFirst:numUnknown});
+    }
+
+    for(var i = 0; i < results.length; i++){
+        if(results.length > 1 && i == results.length - 1){
+            message += "and "
+        }
+        message += results[i].FriendFirst;
+        if(results.length > 2 && i != results.length - 1){
+            message += ", ";
+        }
+    }
+
+    if(numUnknown > 0){
+        if(numUnknown == 1){
+            message += " other"
+        } else {
+            message += " others"
+        }
+    }
+
+    if(results.length > 1){
+        message += " are at the door!";
+    } else {
+        message += " is at the door!";
+    }
+
+    return message;
 }
 
 module.exports = router;
