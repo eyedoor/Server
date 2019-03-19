@@ -39,7 +39,7 @@ function downloadFriendImage(req, res){
         });
     }catch(err){
         console.log(err);
-        res.status(500).send("Application error");
+        res.status(500).json({message:"Application Error"});
     }
 }
 
