@@ -15,6 +15,7 @@ Api link:
 |/api/users| Creates a new<br />User | - | Update User<br />information | - |
 |/api/events| Add event | Returns list of<br />events for a User | - | - |
 |/api/friends| Create new Friend<br />entry from image | Returns User's saved Friends | - | Remove Friend entry |
+|/api/friendImage| - | Return friend's image | - | - |
 
 
 ---
@@ -88,7 +89,7 @@ Response format:
 ```json
 [
     {
-        "EventID": Integer,
+        "EventID": "Integer",
         "Timesent": "YYYY-MM-DDTHH:MI:SS.000Z"
     }
 ]
@@ -173,9 +174,25 @@ Response format:
 ```json
 [
     {
-        "FriendID": Integer,
+        "FriendID": "Integer",
         "FriendFirst": "String",
         "FriendLast": "String"
     }
 ]
 ```
+
+---
+
+### /api/friendImage
+
+**GET (Retrieve a friend's image):**
+
+Request Headers:
+* `"x-access-token"` : The user's JSON Web token
+
+Query Parameters:
+* `"friendId"` : The ID of the friend to get image of
+
+Response:
+* Content-Type: `text/html; charset=utf-8`
+* An image string encoded in Base64, must be decoded back into a `.png` file

@@ -6,17 +6,20 @@ var express = require('express'),
 
 var router = express.Router();
 var pool = database.pool;
-const NUM_ALLOWED_FRIENDS = 5;
+const NUM_ALLOWED_FRIENDS = 100;
 
 router.get("/", auth.verifyUser, getPeople);
 router.post("/", express.urlencoded({limit:'1mb', extended:false}), auth.verifyUser, createPerson);
-router.delete("/", auth.verifyUser, deletePerson);
+router.delete("/", auth.verifyUser);
 
 function createPerson(req, res){ 
     var firstname = req.body.firstname,
         lastname = req.body.lastname,
         base64Data = req.body.image;
-    if(!(firstname && lastname && base64Data)) return res.status(400).json("Parameters Missing");
+    if(!(firstname && lastname && base64Data)){  
+        console.log("Friends Parameters Missing");
+        return res.status(400).json("Parameters Missing");
+    }
     
     var userId = res.locals.userId;
     var friendLimitQuery = "SELECT FriendID FROM Friends WHERE UserID = ?";
@@ -39,6 +42,7 @@ function createPerson(req, res){
                 //write image file
                 fs.writeFile(filepath , base64Data, 'base64', function(err) {
                     if(err) throw err;
+                    console.log(base64Data);
     
                     //FriendImage entry
                     pool.query(friendImageQuery, [filepath, friendId], function (err, results, fields) { 

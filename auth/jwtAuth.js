@@ -12,7 +12,10 @@ function verifyDevice(req, res, next){
 
 function verifyJWT(req, res, next, type){
     var token = req.headers['x-access-token'];
-    if(!token) return res.status(400).send({ auth: false, message: 'Missing authentication token' });
+    if(!token){
+        console.log("Token Parameter Missing");
+        return res.status(400).send({ auth: false, message: 'Missing authentication token' });
+    }
 
     jwt.verify(token, credentials.secret, function(err, decoded) {
         if (err) return res.status(401).send({ auth: false, message: 'Failed to authenticate token'});
