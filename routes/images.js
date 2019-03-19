@@ -9,7 +9,7 @@ var router = express.Router();
 var pool = database.pool;
 
 router.get("/", auth.verifyUser, downloadImage);
-router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth.verifyDevice, uploadImage, performFacialRecognition, sendPushNotification);
+router.post("/", express.urlencoded({limit:'500kb', extended:false}), auth.verifyDevice, uploadImage);
 
 function downloadImage(req, res){
     // Send Image as response
@@ -57,7 +57,7 @@ function uploadImage(req, res, next){
                 pool.query(friendQuery, [userId], function (err, results, fields) {
                     if(err) throw err;
                     res.locals.hasFriends = (results.length > 0);
-                    return next();
+                    return performFacialRecognition(res);
                 });
             });
         });
@@ -67,9 +67,9 @@ function uploadImage(req, res, next){
     }
 }
 
-function performFacialRecognition(req, res, next){
+function performFacialRecognition(res){
     if(!res.locals.hasFriends){
-        return next();
+        return sendPushNotification(res);
     }
     
     var filepath = res.locals.filepath;
@@ -84,7 +84,7 @@ function performFacialRecognition(req, res, next){
         var jsonMatchData = JSON.parse(matchData);
         res.locals.numPeople = jsonMatchData.count;
         res.locals.matchedPeople = jsonMatchData.results;
-        return next();
+        return sendPushNotification(res);
     });
 
     faceRecognition.stderr.on('data', (data) => {
@@ -92,16 +92,16 @@ function performFacialRecognition(req, res, next){
     });
 }
 
-function sendPushNotification(req, res){
+function sendPushNotification(res){
     if(!res.locals.hasFriends){
-        return console.log("Someone is at the door!")
+        return console.log("Someone is at the door!");
     }
     
     var numPeople = res.locals.numPeople;
     var friendIds = res.locals.matchedPeople;
     var numUnknownPeople = numPeople - friendIds.length;
     
-    var friendQuery = "SELECT FriendFirst FROM Friends WHERE FriendID IN (?";
+    var friendQuery = "SELECT FriendFirst, FriendLast FROM Friends WHERE FriendID IN (?";
     for(var i = 1; i < friendIds.length; i++){
         friendQuery += ",?";
     }
@@ -111,6 +111,7 @@ function sendPushNotification(req, res){
         pool.query(friendQuery, friendIds, function (err, results, fields) {
             if(err) throw err;
             var message = buildPushNotification(results, numUnknownPeople);
+            //TODO: Get APNS key for user and send notification
             console.log(message);
         });
     }catch(err){
@@ -128,8 +129,14 @@ function buildPushNotification(results, numUnknown){
         if(results.length > 1 && i == results.length - 1){
             message += "and "
         }
+
+        var last = results[i].FriendLast;
         message += results[i].FriendFirst;
-        if(results.length > 2 && i != results.length - 1){
+        message += (last) ? " " + last.charAt(0) + "." : "";
+        
+        if(results.length == 2 && i != results.length - 1){
+            message += " ";
+        } else if(results.length > 2 && i != results.length - 1){
             message += ", ";
         }
     }
