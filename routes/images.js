@@ -100,6 +100,14 @@ function sendPushNotification(res){
     var numPeople = res.locals.numPeople;
     var friendIds = res.locals.matchedPeople;
     var numUnknownPeople = numPeople - friendIds.length;
+
+    if(res.locals.matchedPeople.length == 0){
+        if(numPeople > 1){
+            return console.log(numPeople + " people are at the door!");
+        } else {
+            return console.log("Someone is at the door!");
+        }
+    }
     
     var friendQuery = "SELECT FriendFirst, FriendLast FROM Friends WHERE FriendID IN (?";
     for(var i = 1; i < friendIds.length; i++){

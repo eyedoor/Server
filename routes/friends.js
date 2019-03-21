@@ -9,7 +9,7 @@ var pool = database.pool;
 const NUM_ALLOWED_FRIENDS = 100;
 
 router.get("/", auth.verifyUser, getFriends);
-router.post("/", express.urlencoded({limit:'1mb', extended:false}), auth.verifyUser, createFriend);
+router.post("/", express.json({limit:'1mb'}), auth.verifyUser, createFriend);
 router.delete("/", auth.verifyUser, deleteFriend);
 
 function createFriend(req, res){
@@ -42,7 +42,6 @@ function createFriend(req, res){
                 //write image file
                 fs.writeFile(filepath , base64Data, 'base64', function(err) {
                     if(err) throw err;
-                    console.log(base64Data);
     
                     //FriendImage entry
                     pool.query(friendImageQuery, [filepath, friendId], function (err, results, fields) { 
