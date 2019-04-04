@@ -1,7 +1,8 @@
 var express = require('express'),
     database = require("../database"),
     jwt = require('jsonwebtoken'),
-    credentials = require('../credentials/credentials');    
+    credentials = require('../credentials/credentials'),
+    auth = require("../auth/jwtAuth");    
 
 const bcrypt = require("bcrypt");
 
@@ -11,7 +12,12 @@ var failedLogin = {auth: false, message: "Email/Password Incorrect"};
 
 router.use(express.json());
 
+router.get("/", auth.verifyUser, verifyLogin);
 router.post("/", login);
+
+function verifyLogin(req, res){
+    res.status(200).json({ auth: true, message: "User JWT Valid"});
+}
 
 function login(req, res){
     var email = req.body.email;
@@ -39,11 +45,21 @@ function login(req, res){
                         if(err) throw err;
                         jwt.sign({ id: results[0].UserID, jwtType : "device"}, credentials.secret, function(err, deviceToken){
                             if(err) throw err;
-                            res.status(200).send({auth: true, token: userToken, deviceToken: deviceToken});
+                            
+                            var payload = {
+                                auth: true, 
+                                token: userToken, 
+                                deviceToken: deviceToken, 
+                                firstname: results[0].Firstname,
+                                lastname: results[0].Lastname,
+                                email: results[0].Email
+                            }
+
+                            res.status(200).json(payload);
                         });
                     });
                 } else {
-                    res.status(401).send(failedLogin);
+                    res.status(401).json(failedLogin);
                 }
             });
         });

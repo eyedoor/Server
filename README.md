@@ -72,6 +72,25 @@ Response format:
 * response includes authentication status `"auth"`, and a Json Web Token `"token"`
 * **All other request must include this token in the request header as the `"x-access-token"` parameter**
 
+**GET (Verify User JWT):**
+
+Request Headers:
+* `"x-access-token"` : The current user's JSON Web token
+
+Response format:
+
+```json
+[
+    {
+        "auth": "Boolean",
+        "message": "String"
+    }
+]
+```
+
+* auth True if valid token, False otherwise
+* message contains further error/success information
+
 ---
 
 ### /api/events
