@@ -6,15 +6,15 @@ Api link:
 
 ## Endpoints:
 
-**Undocumented API endpoints will only send back string responses (for now)**
-
 |Route| POST<br />(Create) | GET<br />(Read) | PUT<br />(Update) | DELETE<br />(Delete) |
 |:---| :---: | :---: | :---: | :---: |
 |/api/login| Creates new JWT<br />for user authentication | - | - | - |
 |/api/images| Creates a new<br />entry from image/gif | Returns the User's<br />current image/gif | - | - |
 |/api/users| Creates a new<br />User | - | Update User<br />information | - |
 |/api/events| Add event | Returns list of<br />events for a User | - | - |
+|/api/events/friends| - | Returns list of<br />friends for an event | - | - |
 |/api/friends| Create new Friend<br />entry from image | Returns User's saved Friends | - | Remove Friend entry |
+|/api/friends/events| - | Returns list of events<br>that a friend appears in | - | - |
 |/api/friendImage| - | Return friend's image | - | - |
 
 
@@ -65,7 +65,10 @@ Response format:
 {
     "auth" : "bool",
     "token" : "String",
-    "deviceToken" : "String"
+    "deviceToken" : "String",
+    "firstname" : "String",
+    "lastname" : "String",
+    "email" : "String"
 }
 ```
 
@@ -114,6 +117,31 @@ Response format:
 ]
 ```
 * In `"Timesent"`, `T` and `.000Z` are alway present in this exact format
+
+---
+
+### /api/events/friends
+
+**GET (Retrieve list of friends that appear in an event):**
+
+Request Headers:
+* `"x-access-token"` : The current user's JSON Web token
+
+Query Parameters:
+* `"eventId"` : The ID of event to return friends for
+
+Response format:
+* Array of friends
+
+```json
+[
+    {
+        "FriendID": "Integer",
+        "FriendFirst": "String",
+        "FriendLast": "String"
+    }
+]
+```
 
 ---
 
@@ -183,7 +211,6 @@ Response:
 
 **GET (Retrieve a list of friends):**
 
-
 Request Headers:
 * `"x-access-token"` : The user's JSON Web token
 
@@ -199,6 +226,44 @@ Response format:
     }
 ]
 ```
+
+**DELETE (Delete a friend):**
+
+Request Headers:
+* `"x-access-token"` : The user's JSON Web token
+
+Query Parameters:
+* `"friendId"` : ID number of friend to delete
+
+Response format:
+* String message
+
+---
+
+### /api/friends/events
+
+
+**GET (Get events that a friend appears in):**
+
+Request Headers:
+* `"x-access-token"` : The user's JSON Web token
+
+Query Parameters:
+* `"friendId"` : The ID of the friend to get image of
+
+Response format:
+* Array of events with newest event first
+
+```json
+[
+    {
+        "EventID": "Integer",
+        "Timesent": "YYYY-MM-DDTHH:MI:SS.000Z"
+    }
+]
+```
+* In `"Timesent"`, `T` and `.000Z` are alway present in this exact format
+
 
 ---
 
