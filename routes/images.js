@@ -51,6 +51,7 @@ function uploadImage(req, res, next){
                 if(err) throw err;
                 res.status(201).send("File uploaded Successfully");
                 res.locals.filepath = filepath;
+                res.locals.eventId = results.insertId;
 
                 //Check for facial recognition
                 var friendQuery = "SELECT FriendID FROM Friends WHERE UserID = ?";
@@ -115,16 +116,23 @@ function sendPushNotification(res){
     }
     friendQuery += ")";
 
-    try{
-        pool.query(friendQuery, friendIds, function (err, results, fields) {
-            if(err) throw err;
-            var message = buildPushNotification(results, numUnknownPeople);
-            //TODO: Get APNS key for user and send notification
-            console.log(message);
-        });
-    }catch(err){
-        console.log(err);
-    }
+    pool.query(friendQuery, friendIds, function (err, results, fields) {
+        if(err){
+            res.status(500).send("Database error");
+            return console.log(err);
+        }
+
+        var friendEventQuery = "INSERT INTO FriendEvent (EventID, FriendID) VALUES (?, ?)";
+        for(var i = 0; i < friendIds.length; i++){ 
+            pool.query(friendEventQuery, [res.locals.eventId, friendIds[i]], function (err, results, fields) {
+                if(err) return console.log(err)
+            });
+        }
+
+        var message = buildPushNotification(results, numUnknownPeople);
+        //TODO: Get APNS key for user and send notification
+        console.log(message);
+    });    
 }
 
 function buildPushNotification(results, numUnknown){

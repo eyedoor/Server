@@ -11,6 +11,7 @@ const NUM_ALLOWED_FRIENDS = 100;
 router.get("/", auth.verifyUser, getFriends);
 router.post("/", express.json({limit:'1mb'}), auth.verifyUser, createFriend);
 router.delete("/", auth.verifyUser, deleteFriend);
+router.get("/events", auth.verifyUser, getFriendEvents);
 
 function createFriend(req, res){
     var firstname = req.body.firstname,
@@ -111,6 +112,24 @@ function deleteFriend(req, res, next){
         console.log(err);
         res.status(500).json({message:"Application Error"});
     }
+}
+
+// Get events that friend appeared in
+function getFriendEvents(req, res){
+    var userId = res.locals.userId;
+    var friendId = req.query.friendId;
+    if(!friendId) return res.status(400).json({auth: true, message: "Missing Friend Id"});
+    var query = "SELECT t1.EventID, t1.Timesent FROM Event t1 JOIN FriendEvent t2 "+
+    "ON (t2.EventID = t1.EventID) WHERE UserID = ? AND FriendID = ?";
+
+    pool.query(query, [userId, friendId], function (err, results, fields) {
+        if(err){
+            res.status(500).send("Database error");
+            return console.log(err);
+        }
+
+        res.status(200).json(results);
+    });
 }
 
 module.exports = router;
