@@ -81,6 +81,7 @@ function deleteFriend(req, res, next){
     var friendQuery = "SELECT FriendID FROM Friends WHERE UserID = ? AND FriendID = ?";
     var friendImageQuery = "SELECT FilePath FROM FriendImage WHERE FriendID = ?";
     var friendImageDeleteQuery = "DELETE FROM FriendImage WHERE FriendID = ?";
+    var friendEventDeleteQuery = "DELETE FROM FriendEvent WHERE FriendID = ?";
     var friendDeleteQuery = "DELETE FROM Friends WHERE FriendID = ?";
 
     try{  
@@ -89,19 +90,26 @@ function deleteFriend(req, res, next){
             if(results.length == 0){
                 return res.status(404).json({ message: "Friend not found" });
             }
+
             pool.query(friendImageQuery, [friendId], function (err, results, fields) {
                 if(err) throw err;
                 if(results.length == 0){
                     return res.status(404).json({ message: "Friend not found" });
                 }
-                // Return base64 encoding of .png image
+
                 fs.unlink(results[0].FilePath, function(err, data) {
                     if(err) throw err;
+
                     pool.query(friendImageDeleteQuery, [friendId], function (err, results, fields) {
                         if(err) throw err;
-                        pool.query(friendDeleteQuery, [friendId], function (err, results, fields) {
+
+                        pool.query(friendEventDeleteQuery, [friendId], function (err, results, fields) {
                             if(err) throw err;
-                            return res.status(200).json({ message: "Friend deleted" });
+
+                            pool.query(friendDeleteQuery, [friendId], function (err, results, fields) {
+                                if(err) throw err;
+                                return res.status(200).json({ message: "Friend deleted" });
+                            });
                         });
                     });
                     
