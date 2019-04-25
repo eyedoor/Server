@@ -112,7 +112,6 @@ function deleteFriend(req, res, next){
                             });
                         });
                     });
-                    
                 });
             });
         });
