@@ -2,7 +2,8 @@ var express = require('express'),
     auth = require('../auth/jwtAuth'),
     fs = require('fs'),
     shortid = require('shortid'),
-    database = require('../database');
+    database = require('../database'),
+    spawn = require("child_process").spawn;
 
 var router = express.Router();
 var pool = database.pool;
@@ -38,7 +39,8 @@ function createFriend(req, res){
             pool.query(insertFriendQuery, [firstname, lastname, userId], function (err, results, fields) {
                 if(err) throw err;
                 var friendId = results.insertId;
-                var filepath = "/srv/people/" + userId + "/" + friendId + ".png";
+                var userPath = "/srv/people/" + userId;
+                var filepath = userPath + "/" + friendId + ".png";
     
                 //write image file
                 fs.writeFile(filepath , base64Data, 'base64', function(err) {
@@ -48,6 +50,17 @@ function createFriend(req, res){
                     pool.query(friendImageQuery, [filepath, friendId], function (err, results, fields) { 
                         if(err) throw err;
                         res.status(200).send("Person added successfully");
+
+                        //Generate Friend Image Encoding
+                        const encodeImage = spawn('python3', ['face_recognition/createEncoding.py', filepath, userPath, friendId]);
+
+                        encodeImage.on('exit', function(code, signal) {
+                            console.log("[FRIEND ENCODING] Exited with code: " + code);
+                        });
+
+                        encodeImage.stderr.on('data', (data) => {
+                            console.log(`[FRIEND ENCODING] stderr: ${data}`);
+                        });
                     }); 
                 });
             });
