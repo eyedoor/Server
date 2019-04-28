@@ -34,12 +34,15 @@ Request body format:
 {
     "email": "String",
     "password": "String",
+    "phone" : "String",
     "firstname": "String",
     "lastname": "String"
 }
 ```
 
 ---
+
+* `"phone" requires country code followed by a sequence of numbers only, ex. +12223334444`
 
 ### /api/login
 
@@ -112,7 +115,8 @@ Response format:
 [
     {
         "EventID": "Integer",
-        "Timesent": "YYYY-MM-DDTHH:MI:SS.000Z"
+        "Timesent": "YYYY-MM-DDTHH:MI:SS.000Z",
+        "EventMessage": "String"
     }
 ]
 ```
