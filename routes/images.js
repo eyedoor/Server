@@ -3,7 +3,9 @@ var express = require('express'),
     fs = require('fs'),
     shortid = require('shortid'),
     database = require('../database'),
-    spawn = require("child_process").spawn;
+    spawn = require("child_process").spawn,
+    creds = require("../credentials/credentials"),
+    twilio = require("twilio")(creds.twilio.sid, creds.twilio.auth);
 
 var router = express.Router();
 var pool = database.pool;
@@ -130,7 +132,13 @@ function sendPushNotification(res){
         }
 
         var message = buildPushNotification(results, numUnknownPeople);
-        //TODO: Get APNS key for user and send notification
+        
+        //TODO: Get user phone number and replace in to field below
+        twilio.messages.create({
+            body: message,
+            from: '+13146268838',
+            to: '+13146302925'
+        }).then(msg => console.log(msg.sid));
         console.log(message);
     });    
 }
