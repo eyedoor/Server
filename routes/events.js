@@ -14,7 +14,7 @@ router.get("/friends", getEventFriends);
 // Return users a list of event IDs and timestamps to verify against internal ledger
 function getEventList(req, res){
     var userId = res.locals.userId;
-    var query = "SELECT EventID, Timesent FROM Event WHERE UserID = ? order by EventID DESC";
+    var query = "SELECT EventID, Timesent, EventMessage FROM Event WHERE UserID = ? order by EventID DESC";
 
     pool.query(query, [userId], function (err, results, fields) {
         if(err){
