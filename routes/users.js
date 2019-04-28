@@ -30,14 +30,15 @@ function createUser(req, res) {
     var email = req.body.email, 
         password = req.body.password, 
         firstname = req.body.firstname, 
-        lastname = req.body.lastname;
+        lastname = req.body.lastname,
+        phone = req.body.phone;
     
     // Check if email already exists
     try{
         pool.getConnection(function(err, conn) {
             if(err) throw err;
 
-            conn.query("SELECT * FROM User WHERE Email = ?", [email],function (error, results, fields) {
+            conn.query("SELECT * FROM User WHERE Email = ?", [email], function (error, results, fields) {
                 if(error){
                     conn.release();
                     throw error;
@@ -56,9 +57,9 @@ function createUser(req, res) {
                         throw err;
                     }
                     //store hash in database
-                    var query = "INSERT INTO User (Email, Password, Firstname, Lastname) VALUES (?, ?, ?, ?)";
+                    var query = "INSERT INTO User (Email, Password, Firstname, Lastname, NotificationID) VALUES (?, ?, ?, ?, ?)";
 
-                    conn.query(query, [email, hash, firstname, lastname], function (error, results, fields) {
+                    conn.query(query, [email, hash, firstname, lastname, phone], function (error, results, fields) {
                         conn.release();
                         if(error) throw error;
                         var userId = results.insertId;

@@ -72,7 +72,7 @@ function uploadImage(req, res, next){
 
 function performFacialRecognition(res){
     if(!res.locals.hasFriends){
-        return sendPushNotification(res);
+        return buildAndSendNotification(res);
     }
     
     var filepath = res.locals.filepath;
@@ -87,7 +87,7 @@ function performFacialRecognition(res){
         var jsonMatchData = JSON.parse(matchData);
         res.locals.numPeople = jsonMatchData.count;
         res.locals.matchedPeople = jsonMatchData.results;
-        return sendPushNotification(res);
+        return buildAndSendNotification(res);
     });
 
     faceRecognition.stderr.on('data', (data) => {
@@ -95,9 +95,10 @@ function performFacialRecognition(res){
     });
 }
 
-function sendPushNotification(res){
+function buildAndSendNotification(res){
     if(!res.locals.hasFriends){
-        return console.log("Someone is at the door!");
+        res.locals.message = "Someone is at the door!";
+        return sendNotification(res);
     }
     
     var numPeople = res.locals.numPeople;
@@ -106,10 +107,12 @@ function sendPushNotification(res){
 
     if(res.locals.matchedPeople.length == 0){
         if(numPeople > 1){
-            return console.log(numPeople + " people are at the door!");
+            res.locals.message = numPeople + " people are at the door!";
         } else {
-            return console.log("Someone is at the door!");
+            res.locals.message = "Someone is at the door!";
         }
+
+        return sendNotification(res);
     }
     
     var friendQuery = "SELECT FriendFirst, FriendLast FROM Friends WHERE FriendID IN (?";
@@ -131,19 +134,44 @@ function sendPushNotification(res){
             });
         }
 
-        var message = buildPushNotification(results, numUnknownPeople);
-        
-        //TODO: Get user phone number and replace in to field below
-        twilio.messages.create({
-            body: message,
-            from: '+13146268838',
-            to: '+13146302925'
-        }).then(msg => console.log(msg.sid));
-        console.log(message);
+        res.locals.message = buildMessageString(results, numUnknownPeople);
+        console.log(res.locals.message);
+
+        sendNotification(res);        
     });    
 }
 
-function buildPushNotification(results, numUnknown){
+function sendNotification(res){
+    var message = res.locals.message;
+    
+    var messageUpdateQuery = "UPDATE Event SET EventMessage=? Where EventID=?";
+    pool.query(messageUpdateQuery, [message, res.locals.eventId], function (err, results, fields){
+        if(err){
+            return console.log(err);
+        }
+        
+        console.log("Message saved");
+    });
+
+    var phoneQuery = "SELECT NotificationID FROM User where UserID = ?";
+    pool.query(phoneQuery, [res.locals.userId], function (err, results, fields){
+        if(err){
+            return console.log(err);
+        }
+
+        if(results.length == 0){
+            return console.log("No phone number");
+        }
+
+        twilio.messages.create({
+            body: message,
+            from: '+13146268838',
+            to: results[0].NotificationID
+        }).then(msg => console.log(msg.sid));
+    });
+}
+
+function buildMessageString(results, numUnknown){
     var message = "";
     if(numUnknown > 0){
         results.push({FriendFirst:numUnknown});
