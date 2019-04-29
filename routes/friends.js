@@ -140,7 +140,7 @@ function getFriendEvents(req, res){
     var friendId = req.query.friendId;
     if(!friendId) return res.status(400).json({auth: true, message: "Missing Friend Id"});
     var query = "SELECT t1.EventID, t1.Timesent FROM Event t1 JOIN FriendEvent t2 "+
-    "ON (t2.EventID = t1.EventID) WHERE UserID = ? AND FriendID = ?";
+    "ON (t2.EventID = t1.EventID) WHERE UserID = ? AND FriendID = ? order by EventID DESC";
 
     pool.query(query, [userId, friendId], function (err, results, fields) {
         if(err){
