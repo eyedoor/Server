@@ -121,6 +121,20 @@ function deleteFriend(req, res, next){
 
                             pool.query(friendDeleteQuery, [friendId], function (err, results, fields) {
                                 if(err) throw err;
+
+                                var userPath = "/srv/people/" + userId;
+
+                                //Generate Friend Image Encoding
+                                const deleteEncoding = spawn('python3', ['face_recognition/removeEncoding.py', userPath, friendId]);
+
+                                deleteEncoding.on('exit', function(code, signal) {
+                                    console.log("[FRIEND ENCODING DELETION] Exited with code: " + code);
+                                });
+
+                                deleteEncoding.stderr.on('data', (data) => {
+                                    console.log(`[FRIEND ENCODING DELETION] stderr: ${data}`);
+                                });
+
                                 return res.status(200).json({ message: "Friend deleted" });
                             });
                         });
@@ -133,6 +147,8 @@ function deleteFriend(req, res, next){
         res.status(500).json({message:"Application Error"});
     }
 }
+
+
 
 // Get events that friend appeared in
 function getFriendEvents(req, res){
