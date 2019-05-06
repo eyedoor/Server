@@ -108,8 +108,10 @@ function buildAndSendNotification(res){
     if(res.locals.matchedPeople.length == 0){
         if(numPeople > 1){
             res.locals.message = numPeople + " people are at the door!";
+            res.locals.dbMessage = numPeople + " people visited";
         } else {
             res.locals.message = "Someone is at the door!";
+            res.locals.dbMessage = "Someone visited";
         }
 
         return sendNotification(res);
@@ -134,7 +136,9 @@ function buildAndSendNotification(res){
             });
         }
 
-        res.locals.message = buildMessageString(results, numUnknownPeople);
+        var messages = buildMessageString(results, numUnknownPeople);
+        res.locals.message = messages.message;
+        res.locals.dbMessage = messages.dbMessage;
         console.log(res.locals.message);
 
         sendNotification(res);        
@@ -143,9 +147,10 @@ function buildAndSendNotification(res){
 
 function sendNotification(res){
     var message = res.locals.message;
+    var dbMessage = res.locals.dbMessage;
     
     var messageUpdateQuery = "UPDATE Event SET EventMessage=? Where EventID=?";
-    pool.query(messageUpdateQuery, [message, res.locals.eventId], function (err, results, fields){
+    pool.query(messageUpdateQuery, [dbMessage, res.locals.eventId], function (err, results, fields){
         if(err){
             return console.log(err);
         }
@@ -201,13 +206,18 @@ function buildMessageString(results, numUnknown){
         }
     }
 
+    var dbMessage = message + " visited";
+
     if(results.length > 1){
         message += " are at the door!";
     } else {
         message += " is at the door!";
     }
 
-    return message;
+    return {
+        message: message,
+        dbMessage: dbMessage
+    };
 }
 
 module.exports = router;
