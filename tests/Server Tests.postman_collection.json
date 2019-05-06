@@ -1,0 +1,1292 @@
+{
+	"info": {
+		"_postman_id": "a44f7b05-2c9b-4ca1-b8ba-1fd0de7a0a9c",
+		"name": "Server Tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "users POST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6c40754d-ed57-4dd0-980c-dbebffccdc95",
+						"exec": [
+							"var jsonData = JSON.parse(request.data);",
+							"postman.setEnvironmentVariable(\"email\", jsonData.email);",
+							"postman.setEnvironmentVariable(\"password\", jsonData.password);",
+							"",
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "31a0cc4f-4866-490d-8baa-c6257312f2be",
+						"exec": [
+							"var id = Math.floor(Math.random() * 10000) + 10;",
+							"pm.environment.set(\"email\", id + \"@gmail.com\");",
+							"pm.environment.set(\"lastname\", id);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"{{email}}\",\n\t\"password\": \"helloworld\",\n\t\"phone\" : \"+13146302925\",\n\t\"firstname\": \"John\",\n\t\"lastname\": \"{{lastname}}\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/users",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "users POST error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6c40754d-ed57-4dd0-980c-dbebffccdc95",
+						"exec": [
+							"pm.test(\"Status code is 403\", function () {",
+							"    pm.response.to.have.status(403);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "31a0cc4f-4866-490d-8baa-c6257312f2be",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"{{email}}\",\n\t\"password\": \"helloworld\",\n\t\"phone\" : \"+13146302925\",\n\t\"firstname\": \"John\",\n\t\"lastname\": \"{{lastname}}\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/users",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login POST",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b8b77a8e-1f55-482f-97c3-3ecb10ae678a",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"if(jsonData.auth){",
+							"    postman.setEnvironmentVariable(\"userToken\", jsonData.token);",
+							"    postman.setEnvironmentVariable(\"deviceToken\", jsonData.deviceToken);",
+							"}",
+							"",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Auth is true\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.auth).to.eql(true);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"{{email}}\",\n\t\"password\": \"{{password}}\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/login",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login POST error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b8b77a8e-1f55-482f-97c3-3ecb10ae678a",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});",
+							"",
+							"pm.test(\"Auth is false\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.auth).to.eql(false);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"email\": \"{{email}}\",\n\t\"password\": \"badpass\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/login",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login GET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6d507ef6-b86d-4d73-a91e-dfd61f04cfda",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/login",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login GET error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6d507ef6-b86d-4d73-a91e-dfd61f04cfda",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "123"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/login",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends POST",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5176e63e-da03-47c9-bee5-44178414f161",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8f1f203c-11c3-403f-a814-1b7764c4a4e6",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "{{userToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstname\" : \"Joey\",\n\t\"lastname\" : \"Frank\",\n\t\"image\" : \"{{joeyImage}}\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends POST 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5176e63e-da03-47c9-bee5-44178414f161",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f014c9f4-dc07-4192-a03d-c3268e6543f4",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "{{userToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstname\" : \"Ian\",\n\t\"lastname\" : \"Smith\",\n\t\"image\" : \"{{ianImage}}\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends POST 3",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5176e63e-da03-47c9-bee5-44178414f161",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4773735b-de31-43cc-a30c-7b09087cdd9e",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "{{userToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstname\" : \"Nate\",\n\t\"lastname\" : \"Schlechte\",\n\t\"image\" : \"{{nateImage}}\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends POST error",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5176e63e-da03-47c9-bee5-44178414f161",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8f1f203c-11c3-403f-a814-1b7764c4a4e6",
+						"exec": [
+							"pm.test(\"Status code is 413 - Image too large\", function () {",
+							"    pm.response.to.have.status(413);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "{{userToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstname\" : \"Big\",\n\t\"lastname\" : \"Image\",\n\t\"image\" : \"{{bigImage}}\"\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends POST error 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "5176e63e-da03-47c9-bee5-44178414f161",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "8f1f203c-11c3-403f-a814-1b7764c4a4e6",
+						"exec": [
+							"pm.test(\"Status code is 400 - Missing Params\", function () {",
+							"    pm.response.to.have.status(400);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "{{userToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n}"
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends GET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfa91d76-3fa6-4b4c-89a0-26568747dc20",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"if(jsonData.length > 0)",
+							"    postman.setEnvironmentVariable(\"friendId\", jsonData[0].FriendID);",
+							"    ",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friendImage GET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "38ce4f91-ea25-473f-9fcc-5791fb9e0d6c",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friendImage?friendId={{friendId}}",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friendImage"
+					],
+					"query": [
+						{
+							"key": "friendId",
+							"value": "{{friendId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "images POST",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0bc578e2-4f99-478b-b9ad-245d1732375c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "55f8ff86-6c8b-4d3b-b8c7-587c187c4f3c",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "x-access-token",
+						"value": "{{deviceToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "image",
+							"value": "{{nateImage}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/images",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"images"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "images POST error",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0bc578e2-4f99-478b-b9ad-245d1732375c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "55f8ff86-6c8b-4d3b-b8c7-587c187c4f3c",
+						"exec": [
+							"pm.test(\"Status code is 413 - Image too big\", function () {",
+							"    pm.response.to.have.status(413);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "{{deviceToken}}"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "image",
+							"value": "{{bigImage}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/images",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"images"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "events GET",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "20c0557c-0c7c-4453-82c8-229a0017cecd",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "89971feb-258b-4295-830c-cba1c011e512",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"if(jsonData.length > 0)",
+							"    postman.setEnvironmentVariable(\"eventID\", jsonData[0].EventID);",
+							"    ",
+							"    ",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/events",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "images GET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "95c380f2-82fc-4a00-ab95-0bdac00cd7fa",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/images?eventId={{eventID}}",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"images"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "{{eventID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "images GET error",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "95c380f2-82fc-4a00-ab95-0bdac00cd7fa",
+						"exec": [
+							"pm.test(\"Status code is 401\", function () {",
+							"    pm.response.to.have.status(401);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "123"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/images?eventId={{eventID}}",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"images"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "{{eventID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "events/friends GET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d6299c54-99ea-4bb8-b09f-76548bc1c077",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/events/friends?eventId={{eventID}}",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"events",
+						"friends"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "{{eventID}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends/events GET",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "59f33e91-6a72-4548-ae4b-e320e767abd0",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends/events?friendId={{friendId}}",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends",
+						"events"
+					],
+					"query": [
+						{
+							"key": "friendId",
+							"value": "{{friendId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends DELETE",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e1358e0-6340-4134-b782-2d4ec0167e56",
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "x-access-token",
+						"value": "{{userToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends?friendId={{friendId}}",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					],
+					"query": [
+						{
+							"key": "friendId",
+							"value": "{{friendId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "friends GET 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfa91d76-3fa6-4b4c-89a0-26568747dc20",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"if(jsonData.length > 0)",
+							"    postman.setEnvironmentVariable(\"friendId\", jsonData[0].FriendID);",
+							"    ",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-access-token",
+						"type": "text",
+						"value": "{{userToken}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/friends",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"friends"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "images POST 2",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0bc578e2-4f99-478b-b9ad-245d1732375c",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "55f8ff86-6c8b-4d3b-b8c7-587c187c4f3c",
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/x-www-form-urlencoded"
+					},
+					{
+						"key": "x-access-token",
+						"value": "{{deviceToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "image",
+							"value": "{{rjiImage}}",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://joseph-frank.com/{{env}}/images",
+					"protocol": "https",
+					"host": [
+						"joseph-frank",
+						"com"
+					],
+					"path": [
+						"{{env}}",
+						"images"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
